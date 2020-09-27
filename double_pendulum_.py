@@ -1,7 +1,9 @@
 import numpy as np
-from matplotlib.pyplot import *
+import matplotlib.pyplot as plt
+#import matplotlib as plt plt.rcParams['animation.ffmpeg_path'] = r'C:\\Users\\ipadattende\\Desktop\\ffmpeg\\bin\\ffmpeg.exe'
 import scipy.integrate
-from matplotlib.animation import FuncAnimation
+#import matplotlib.animation as animation
+from matplotlib import animation
 
 class DoublePendulum:
     def __init__(self,M1=1,L1=1,M2=1,L2=1):
@@ -10,6 +12,7 @@ class DoublePendulum:
         self.M2 = M2
         self.L2 = L2
         self.g = 9.81
+        self.called_animation = False
     def __call__(self,t,y):
         M1 = self.M1; L1 = self.L1
         M2 = self.M2; L2 = self.L2
@@ -138,15 +141,60 @@ class DoublePendulum:
             return K1 + K2
         else:
             raise AttributeError("solve method has not been called")
+    def create_animation(self,fps=60):
+        self.called_animation = True
+        self.fps = fps
+        if 1 > int(1/self.dt*fps):
+            frames = 1
+        else:
+            frames = int(1/(self.dt*fps))
+        # Create empty figure
+        fig = plt.figure()
+
+        # Configure figure
+        L = self.L1 + self.L2
+        plt.axis((-L, L, -L, L))
+        #plt.axis('equal')
+        plt.axis('off')
+        # Make an "empty" plot object to be updated throughout the animation
+        self.pendulums, = plt.plot([], [], 'o-', lw=2)
+        # Call FuncAnimation
+        self.animation = animation.FuncAnimation(fig,
+                                                 self.next_frame,
+                                                 frames=range(0,len(self.x1),frames),
+                                                 repeat=None,
+                                                 interval=1000*self.dt*frames,
+                                                 blit=True)
 
 
+
+    def next_frame(self,i):
+        self.pendulums.set_data((0,self.x1[i],self.x2[i]),
+                                (0,self.y1[i],self.y2[i]))
+        return self.pendulums,
+
+    def show_animation(self):
+        if self.called_animation:
+            plt.show()
+        else:
+            self.create_animation
+            plt.show()
+        self.called_animation = True
+    def save_animation(self,filename = "pendulum_motion.mp4"):
+        if self.called_animation:
+            self.animation.save(filename,fps = self.fps)
+        else:
+            self.create_animation
+            self.animation.save(filename,fps = self.fps)
+        self.called_animation = True
 if __name__ == '__main__':
-    L1 = 3; L2 = 6
-    theta1 = np.pi/3; theta2 = 3*np.pi/2
-    omega1 = 0.15; omega2 = 0.075
-    T = 40
-    dt = 1e-3
-    example = DoublePendulum(L1 = L1, L2 = L2)
+    L1 = 1; L2 = 1
+    M1 = 1; M2 = 10
+    theta1 = np.pi; theta2 = 11*np.pi/12
+    omega1 = 0; omega2 = 0
+    T = 10
+    dt = 1e-4
+    example = DoublePendulum(M1,L1,M2,L2)
     example.solve((theta1,omega1,theta2,omega2),T,dt)
 
     t = example.t
@@ -154,11 +202,15 @@ if __name__ == '__main__':
     kinetic = example.kinetic
     total_energy = np.add(kinetic,potential)
 
-    plot(t,kinetic, color = 'r', label = "Kinetic energy")
-    plot(t,potential, color = 'b', label = "Potential energy")
-    plot(t,total_energy, color = 'g', label = "Total energy")
-    xlabel("t")
-    ylabel("E")
-    legend()
-    show()
+    plt.plot(t,kinetic, color = 'r', label = "Kinetic energy")
+    plt.plot(t,potential, color = 'b', label = "Potential energy")
+    plt.plot(t,total_energy, color = 'g', label = "Total energy")
+    plt.xlabel("t")
+    plt.ylabel("E")
+    plt.legend()
+    plt.show()
+
+
     example.create_animation()
+    example.show_animation()
+    example.save_animation()
