@@ -173,18 +173,18 @@ class DoublePendulum:
                                 (0,self.y1[i],self.y2[i]))
         return self.pendulums,
 
-    def show_animation(self):
+    def show_animation(self,fps=60):
         if self.called_animation:
             plt.show()
         else:
-            self.create_animation
+            self.create_animation(fps)
             plt.show()
         self.called_animation = True
-    def save_animation(self,filename = "pendulum_motion.mp4"):
+    def save_animation(self,filename = "pendulum_motion.mp4",fps=60):
         if self.called_animation:
             self.animation.save(filename,fps = self.fps)
         else:
-            self.create_animation
+            self.create_animation(fps)
             self.animation.save(filename,fps = self.fps)
         self.called_animation = True
 if __name__ == '__main__':
@@ -211,6 +211,52 @@ if __name__ == '__main__':
     plt.show()
 
 
-    example.create_animation()
     example.show_animation()
-    example.save_animation()
+    #example.save_animation()
+
+    T = 10
+    dt = 1e-4
+    L1 = 1; L2 = 1
+    M1 = 1; M2 = 1
+    theta1 = np.pi; theta2 = 11*np.pi/12
+    omega1 = 0; omega2 = 0
+
+    chaotic1 = DoublePendulum(M1,L1,M2,L2)
+    chaotic1.solve((theta1,omega1,theta2,omega2),T,dt)
+    x1 = chaotic1.x2
+    y1 = chaotic1.y2
+
+    T = 10
+    dt = 1e-4
+    L1 = 0.9; L2 = 0.9
+    M1 = 0.5; M2 = 0.5
+    theta1 = np.pi; theta2 = 11*np.pi/12
+    omega1 = 0.1; omega2 = 0.1
+
+    chaotic2 = DoublePendulum(M1,L1,M2,L2)
+    chaotic2.solve((theta1,omega1,theta2,omega2),T,dt)
+    x2 = chaotic2.x2
+    y2 = chaotic2.y2
+
+    T = 10
+    dt = 1e-4
+    L1 = 0.8; L2 = 0.8
+    M1 = 0.1; M2 = 0.1
+    theta1 = np.pi; theta2 = 11*np.pi/12
+    omega1 = 0.5; omega2 = 0.5
+
+    chaotic3 = DoublePendulum(M1,L1,M2,L2)
+    chaotic3.solve((theta1,omega1,theta2,omega2),T,dt)
+    x3 = chaotic3.x2
+    y3 = chaotic3.y2
+    plt.plot(x1,y1,color = 'r', label = "Chaotic1")
+    plt.scatter(x1[-1], y1[-1])
+    plt.annotate("Point 1", (x1[-1], y1[-1]))
+    plt.plot(x2,y2,color = 'g', label = "Chaotic2")
+    plt.scatter(x2[-1], y2[-1])
+    plt.annotate("Point 2", (x2[-1], y2[-1]))
+    plt.plot(x3,y3,color = 'b', label = "Chaotic3")
+    plt.scatter(x3[-1], y3[-1])
+    plt.annotate("Point 3", (x3[-1], y3[-1]))
+    plt.legend()
+    plt.show()
