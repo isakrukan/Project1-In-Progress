@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import scipy.integrate
 #import matplotlib.animation as animation
 from matplotlib import animation
-
 class DoublePendulum:
     def __init__(self,M1=1,L1=1,M2=1,L2=1):
         self.M1 = M1
@@ -154,8 +153,9 @@ class DoublePendulum:
         # Configure figure
         L = self.L1 + self.L2
         plt.axis((-L, L, -L, L))
+        plt.grid()
         #plt.axis('equal')
-        plt.axis('off')
+        #plt.axis('off')
         # Make an "empty" plot object to be updated throughout the animation
         self.pendulums, = plt.plot([], [], 'o-', lw=2)
         # Call FuncAnimation
@@ -164,7 +164,7 @@ class DoublePendulum:
                                                  frames=range(0,len(self.x1),frames),
                                                  repeat=None,
                                                  interval=1000*self.dt*frames,
-                                                 blit=True)
+                                                 blit=True,)
 
 
 
